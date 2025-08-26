@@ -23,9 +23,23 @@ import (
 // EDIT THIS FILE!  THIS IS SCAFFOLDING FOR YOU TO OWN!
 // NOTE: json tags are required.  Any new fields you add must have json tags for the fields to be serialized.
 
+type SecretRef struct {
+	// Name of the Secret
+	Name string `json:"name"`
+	// Key within the Secret
+	Key string `json:"key"`
+}
+
 // DroneServerSpec defines the desired state of DroneServer.
 type DroneServerSpec struct {
 	// RunnerReplicas is the number of Drone runner replicas
+	// Reference to the GitHub Client ID secret
+	GithubClientIDSecret SecretRef `json:"githubClientIDSecret"`
+	// Reference to the GitHub Client Secret secret
+	GithubClientSecretSecret SecretRef `json:"githubClientSecretSecret"`
+
+	SharedSecret SecretRef `json:"sharedSecret"`
+
 	RunnerReplicas int32 `json:"runnerReplicas"`
 	// RunnerCapacity is the max concurrent pipelines per runner
 	RunnerCapacity int32 `json:"runnerCapacity"`
@@ -39,8 +53,6 @@ type DroneServerSpec struct {
 type DroneServerStatus struct {
 	// Phase of the server (e.g., Running, Failed)
 	Phase string `json:"phase,omitempty"`
-	// GeneratedSecret is the auto-generated shared secret name
-	GeneratedSecret string `json:"generatedSecret,omitempty"`
 }
 
 // +kubebuilder:object:root=true

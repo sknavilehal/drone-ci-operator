@@ -40,6 +40,8 @@ type DroneServerSpec struct {
 
 	SharedSecret SecretRef `json:"sharedSecret"`
 
+	DroneServerHost string `json:"droneServerHost"`
+
 	RunnerReplicas int32 `json:"runnerReplicas"`
 	// RunnerCapacity is the max concurrent pipelines per runner
 	RunnerCapacity int32 `json:"runnerCapacity"`

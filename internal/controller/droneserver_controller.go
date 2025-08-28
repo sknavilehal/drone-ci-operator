@@ -28,6 +28,7 @@ import (
 	corev1 "k8s.io/api/core/v1"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/apimachinery/pkg/util/intstr"
 
 	dronev1alpha1 "github.com/sknavilehal/drone-operator/api/v1alpha1"
 )
@@ -35,6 +36,7 @@ import (
 const (
 	droneServerImage = "drone/drone:2"
 	droneRunnerImage = "drone/drone-runner-docker:1"
+	nodePort         = 30000
 )
 
 // DroneServerReconciler reconciles a DroneServer object
@@ -125,6 +127,10 @@ func (r *DroneServerReconciler) deploymentForDroneServer(ds *dronev1alpha1.Drone
 							Name:  "drone-server",
 							Image: droneServerImage,
 							Env: []corev1.EnvVar{
+								{
+									Name:  "DRONE_SERVER_HOST",
+									Value: ds.Spec.DroneServerHost,
+								},
 								{
 									Name: "DRONE_GITHUB_CLIENT_ID",
 									ValueFrom: &corev1.EnvVarSource{
@@ -226,10 +232,13 @@ func (r *DroneServerReconciler) serviceForDroneServer(ds *dronev1alpha1.DroneSer
 			Namespace: ds.Namespace,
 		},
 		Spec: corev1.ServiceSpec{
+			Type:     corev1.ServiceTypeNodePort, // Set service type to NodePort
 			Selector: map[string]string{"app": ds.Name},
 			Ports: []corev1.ServicePort{
 				{
-					Port: 80,
+					Port:       80,
+					NodePort:   nodePort, // Use the constant nodePort (30000)
+					TargetPort: intstr.FromInt(nodePort),
 				},
 			},
 		},
